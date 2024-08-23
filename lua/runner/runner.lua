@@ -124,4 +124,9 @@ function M.run()
   })
 end
 
+-- Create a Neovim command to call the run function
+vim.api.nvim_create_user_command('RunnerRun', function()
+  require('runner.runner').run()
+end, { desc = 'Run the Runner plugin function' })
+
 return M
