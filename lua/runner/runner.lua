@@ -124,12 +124,4 @@ function M.run()
   })
 end
 
--- Setup function called when the plugin is loaded
-function M.setup()
-  -- Define key mapping for <leader>str
-  vim.api.nvim_set_keymap('n', '<leader>str', '<cmd>lua require("runner").run()<CR>', { noremap = true, silent = true })
-end
-
-M.setup()
-
 return M
