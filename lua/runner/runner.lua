@@ -130,4 +130,6 @@ function M.init()
   vim.api.nvim_set_keymap('n', '<leader>str', '<cmd>lua require("runner").run()<CR>', { noremap = true, silent = true })
 end
 
+M.init()
+
 return M
