@@ -36,16 +36,16 @@ local function run_file_as_command(file_path)
   local command = table.concat(lines, "\n")
 
   -- Open a new buffer for output window
-  vim.cmd('vnew')  -- Open a new vertical split
-  vim.cmd('setlocal buftype=nofile')  -- Buffer is not related to a file
-  vim.cmd('setlocal bufhidden=wipe')  -- Wipe buffer when abandoned
-  vim.cmd('setlocal nobuflisted')  -- Buffer won't appear in the buffer list
-  vim.cmd('setlocal nonumber')  -- Hide line numbers
-  vim.cmd('setlocal norelativenumber')  -- Hide relative line numbers
-  vim.cmd('setlocal nowrap')  -- Don't wrap lines
-  vim.cmd('setlocal signcolumn=no')  -- Don't show the sign column
+  vim.cmd('vnew')                      -- Open a new vertical split
+  vim.cmd('setlocal buftype=nofile')   -- Buffer is not related to a file
+  vim.cmd('setlocal bufhidden=wipe')   -- Wipe buffer when abandoned
+  vim.cmd('setlocal nobuflisted')      -- Buffer won't appear in the buffer list
+  vim.cmd('setlocal nonumber')         -- Hide line numbers
+  vim.cmd('setlocal norelativenumber') -- Hide relative line numbers
+  vim.cmd('setlocal nowrap')           -- Don't wrap lines
+  vim.cmd('setlocal signcolumn=no')    -- Don't show the sign column
 
-  local bufnr = vim.fn.bufnr()  -- Get the current buffer number
+  local bufnr = vim.fn.bufnr()         -- Get the current buffer number
 
   -- Start a terminal in the new buffer
   vim.fn.termopen(command, {
@@ -62,12 +62,12 @@ local function run_file_as_command(file_path)
       end
     end,
     on_exit = function(_, code, _)
-      vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, {"\nProcess exited with code: " .. code})
-      vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':bd!<CR>', { noremap = true, silent = true })  -- Bind 'q' to close the buffer
+      vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "\nProcess exited with code: " .. code })
+      vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':bd!<CR>', { noremap = true, silent = true }) -- Bind 'q' to close the buffer
     end,
   })
 
-  vim.cmd('startinsert')  -- Start in insert mode in terminal
+  vim.cmd('startinsert') -- Start in insert mode in terminal
 end
 
 -- Main function to be triggered by the key mapping
@@ -107,7 +107,7 @@ function M.run()
           local new_file_name = action_state.get_current_line()
 
           if new_file_name ~= "" then
-            actions.close(prompt_bufnr)  -- Close the Telescope prompt
+            actions.close(prompt_bufnr) -- Close the Telescope prompt
             create_and_edit_file(rcfgs_dir, new_file_name)
           else
             print("No file name provided!")
@@ -124,9 +124,5 @@ function M.run()
   })
 end
 
--- Create a Neovim command to call the run function
-vim.api.nvim_create_user_command('RunnerRun', function()
-  require('runner.runner').run()
-end, { desc = 'Run the Runner plugin function' })
 
 return M

@@ -13,4 +13,9 @@ end
 -- Automatically call setup when the module is required
 M.setup()
 
+-- Create a Neovim command to call the run function
+vim.api.nvim_create_user_command('RunnerRun', function()
+  require('runner.runner').run()
+end, { desc = 'Run the Runner plugin function' })
+
 return M
