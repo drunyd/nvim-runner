@@ -3,7 +3,7 @@
 local M = {}
 
 M.options = {
-  hotkey = '<leader>str', -- Default hotkey
+  hotkey = '<leader>r', -- Default hotkey
 }
 
 M.runner_hotkey_run = "<leader>r"
