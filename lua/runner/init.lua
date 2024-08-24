@@ -1,6 +1,7 @@
 -- runner.lua
 
 local M = {}
+M.runner_hotkey_run = "<leader>r"
 
 -- Function to find the root directory of the project
 local function find_project_root()
@@ -126,7 +127,7 @@ end
 
 function M.setup()
   -- Define key mapping for <leader>str
-  vim.api.nvim_set_keymap('n', '<leader>str', '<cmd>lua require("runner.init").run()<CR>',
+  vim.api.nvim_set_keymap('n', M.runner_hotkey_run, '<cmd>lua require("runner.init").run()<CR>',
     { noremap = true, silent = true })
 
   -- Automatically call setup when the module is required
