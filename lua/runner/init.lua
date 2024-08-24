@@ -125,9 +125,10 @@ function M.run()
   })
 end
 
-function M.setup()
+function M.setup(opts)
+  M.options = vim.tbl_extend('force', M.options, opts or {})
   -- Define key mapping for <leader>str
-  vim.api.nvim_set_keymap('n', M.runner_hotkey_run, '<cmd>lua require("runner.init").run()<CR>',
+  vim.api.nvim_set_keymap('n', M.options.hotkey, '<cmd>lua require("runner.init").run()<CR>',
     { noremap = true, silent = true })
 
   -- Automatically call setup when the module is required
