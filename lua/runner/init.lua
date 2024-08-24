@@ -1,6 +1,11 @@
 -- runner.lua
 
 local M = {}
+
+M.options = {
+  hotkey = '<leader>str', -- Default hotkey
+}
+
 M.runner_hotkey_run = "<leader>r"
 
 -- Function to find the root directory of the project
