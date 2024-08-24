@@ -139,4 +139,6 @@ vim.api.nvim_create_user_command('RunnerRun', function()
 end, { desc = 'Run the Runner plugin function' })
 end
 
+M.setup()
+
 return M
