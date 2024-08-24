@@ -1,4 +1,6 @@
 
+local M = {}
+function M.init()
   -- Print a message to verify that setup is running
   print("Running setup() function for runner plugin")
   
@@ -12,3 +14,4 @@ vim.api.nvim_create_user_command('RunnerRun', function()
   require('runner.runner').run()
 end, { desc = 'Run the Runner plugin function' })
 
+end
