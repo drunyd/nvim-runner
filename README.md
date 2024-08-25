@@ -29,7 +29,7 @@ To install `nvim-runner` using the Lazy package manager, follow the instructions
 
 ## Configuration
 
-You can customize the hotkey used to trigger the `nvim-runner` by setting the `hotkey` option in the `opts` table as shown in the installation example. The default hotkey is `<leader>str`.
+You can customize the hotkey used to trigger the `nvim-runner` by setting the `hotkey` option in the `opts` table as shown in the installation example. The default hotkey is `<leader>r`.
 
 ## Usage
 
