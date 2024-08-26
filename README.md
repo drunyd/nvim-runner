@@ -31,6 +31,8 @@ To install `nvim-runner` using the Lazy package manager, follow the instructions
 
 You can customize the hotkey used to trigger the `nvim-runner` by setting the `hotkey` option in the `opts` table as shown in the installation example. The default hotkey is `<leader>r`.
 
+You can set `output_window` option to: `float` `vertical` `horizontal`  - depending on how you would like to see the result of your command.
+
 ## Usage
 
 `nvim-runner` is designed to streamline your workflow by allowing you to quickly run commands from within Neovim. Here's how to use the plugin:
