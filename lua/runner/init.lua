@@ -34,14 +34,10 @@ local function create_and_edit_file(rcfgs_dir, file_name)
   print("Created and opened new file: " .. file_path)
 end
 
--- Function to execute multiple commands in a single terminal buffer sequentially
+-- Function to run the content of a selected file as a command
 local function run_file_as_command(file_path)
   local lines = vim.fn.readfile(file_path)
-
-  if #lines == 0 then
-    print("File is empty!")
-    return
-  end
+  local command = table.concat(lines, "\n")
 
   local bufnr
 
@@ -80,38 +76,23 @@ local function run_file_as_command(file_path)
   vim.cmd('setlocal nowrap')
   vim.cmd('setlocal signcolumn=no')
 
-  -- Function to execute a command and handle the output in the buffer
-  local function execute_command(index)
-    if index > #lines then
-      vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "\nAll commands executed." })
+  -- Start a terminal in the new buffer
+  vim.fn.termopen(command, {
+    on_stdout = function(_, data, _)
+      if data then
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
+      end
+    end,
+    on_stderr = function(_, data, _)
+      if data then
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
+      end
+    end,
+    on_exit = function(_, code, _)
+      vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "\nProcess exited with code: " .. code })
       vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':bd!<CR>', { noremap = true, silent = true }) -- Bind 'q' to close the buffer
-      return
-    end
-
-    local cmd = lines[index]
-    vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "Running: " .. cmd })
-    
-    vim.fn.termopen(cmd, {
-      on_stdout = function(_, data, _)
-        if data then
-          vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
-        end
-      end,
-      on_stderr = function(_, data, _)
-        if data then
-          vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
-        end
-      end,
-      on_exit = function(_, code, _)
-        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "\nProcess exited with code: " .. code })
-        -- Execute the next command
-        execute_command(index + 1)
-      end,
-    })
-  end
-
-  -- Start executing commands from the file
-  execute_command(1)
+    end,
+  })
 
   vim.cmd('startinsert') -- Start in insert mode in terminal
 end
