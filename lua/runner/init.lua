@@ -1,4 +1,3 @@
-
 -- runner.lua
 
 local M = {}
@@ -35,10 +34,14 @@ local function create_and_edit_file(rcfgs_dir, file_name)
   print("Created and opened new file: " .. file_path)
 end
 
--- Function to run the content of a selected file as a command
+-- Function to run multiple commands from a file sequentially
 local function run_file_as_command(file_path)
   local lines = vim.fn.readfile(file_path)
-  local command = table.concat(lines, "\n")
+
+  if #lines == 0 then
+    print("File is empty!")
+    return
+  end
 
   local bufnr
 
@@ -77,23 +80,35 @@ local function run_file_as_command(file_path)
   vim.cmd('setlocal nowrap')
   vim.cmd('setlocal signcolumn=no')
 
-  -- Start a terminal in the new buffer
-  vim.fn.termopen(command, {
-    on_stdout = function(_, data, _)
-      if data then
-        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
-      end
-    end,
-    on_stderr = function(_, data, _)
-      if data then
-        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
-      end
-    end,
-    on_exit = function(_, code, _)
-      vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "\nProcess exited with code: " .. code })
-      vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':bd!<CR>', { noremap = true, silent = true }) -- Bind 'q' to close the buffer
-    end,
-  })
+  -- Function to execute a command and handle the output in the buffer
+  local function execute_command(cmd, bufnr)
+    vim.fn.termopen(cmd, {
+      on_stdout = function(_, data, _)
+        if data then
+          vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
+        end
+      end,
+      on_stderr = function(_, data, _)
+        if data then
+          vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, data)
+        end
+      end,
+      on_exit = function(_, code, _)
+        vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "\nProcess exited with code: " .. code })
+        vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':bd!<CR>', { noremap = true, silent = true }) -- Bind 'q' to close the buffer
+
+        -- Check if there are more commands to run
+        if #lines > 0 then
+          local next_cmd = table.remove(lines, 1)
+          execute_command(next_cmd, bufnr) -- Execute the next command
+        end
+      end,
+    })
+  end
+
+  -- Start executing commands from the file
+  local first_cmd = table.remove(lines, 1)
+  execute_command(first_cmd, bufnr)
 
   vim.cmd('startinsert') -- Start in insert mode in terminal
 end
