@@ -12,15 +12,20 @@ local function find_project_root()
   local candidates = { '.git', 'project.toml', 'bruno.json', 'package.json' }
   local current_dir = vim.fn.expand('%:p:h')
 
-  while current_dir ~= "/" do
+  while current_dir ~= "/" and current_dir ~= "" do  -- Add check for root and empty string
     for _, candidate in ipairs(candidates) do
       if vim.fn.globpath(current_dir, candidate) ~= "" then
         return current_dir
       end
     end
-    current_dir = vim.fn.fnamemodify(current_dir, ':h')
+    local parent_dir = vim.fn.fnamemodify(current_dir, ':h')
+    if parent_dir == current_dir then  -- If it can't go up anymore, exit the loop
+      break
+    end
+    current_dir = parent_dir
   end
 
+  -- If no root directory is found, return nil
   return nil
 end
 
