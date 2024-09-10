@@ -95,11 +95,11 @@ end
 
 function M.run()
   -- Finding project root and handling when it's not found
-  local project_root = find_project_root()
-  if not project_root then
-    print("Project root not found!")
-    return
-  end
+  -- local project_root = find_project_root()
+  -- if not project_root then
+  --   print("Project root not found!")
+  --   return
+  -- end
 
   -- local rcfgs_dir = project_root .. "/.rcfgs"
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
