@@ -90,7 +90,7 @@ function M.run()
     prompt_title = "Find files in .rcfgs",
     cwd = rcfgs_dir,
     layout_config = { preview_width = 0.6 },
-    previewer = false,  -- Disable the previewer for faster loading (or set to true if necessary)
+    previewer = true,  -- Disable the previewer for faster loading (or set to true if necessary)
     attach_mappings = function(prompt_bufnr, map)
       local action_state = require('telescope.actions.state')
       local actions = require('telescope.actions')
