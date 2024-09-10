@@ -116,8 +116,8 @@ local function run_file_as_command(file_path)
   vim.cmd('startinsert') -- Start in insert mode in terminal
 end
 
--- Main function to be triggered by the key mapping
 function M.run()
+  -- Finding project root and handling when it's not found
   local project_root = find_project_root()
   if not project_root then
     print("Project root not found!")
@@ -125,6 +125,8 @@ function M.run()
   end
 
   local rcfgs_dir = project_root .. "/.rcfgs"
+
+  -- Check if the directory exists, create if necessary
   if vim.fn.isdirectory(rcfgs_dir) == 0 then
     vim.fn.mkdir(rcfgs_dir, "p")
     print("Created directory: " .. rcfgs_dir)
@@ -132,38 +134,89 @@ function M.run()
     print(".rcfgs directory already exists at " .. rcfgs_dir)
   end
 
+  -- Now launch Telescope find_files, optimized to reduce delay
   require('telescope.builtin').find_files({
     prompt_title = "Find files in .rcfgs",
     cwd = rcfgs_dir,
     layout_config = { preview_width = 0.6 },
-    previewer = true,
+    previewer = true,  -- Disable the previewer for faster loading (or set to true if necessary)
     attach_mappings = function(prompt_bufnr, map)
       local action_state = require('telescope.actions.state')
       local actions = require('telescope.actions')
 
-      map('i', '<CR>', function()
-        local current_picker = action_state.get_current_picker(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
+      -- Debouncing the mapping for a slight performance boost
+      vim.defer_fn(function()
+        map('i', '<CR>', function()
+          local selection = action_state.get_selected_entry()
 
-        if selection == nil then
-          local new_file_name = action_state.get_current_line()
+          if selection == nil then
+            local new_file_name = action_state.get_current_line()
 
-          if new_file_name ~= "" then
-            actions.close(prompt_bufnr)
-            create_and_edit_file(rcfgs_dir, new_file_name)
+            if new_file_name ~= "" then
+              actions.close(prompt_bufnr)
+              create_and_edit_file(rcfgs_dir, new_file_name)
+            else
+              print("No file name provided!")
+            end
           else
-            print("No file name provided!")
+            actions.close(prompt_bufnr)
+            run_file_as_command(selection.path)
           end
-        else
-          actions.close(prompt_bufnr)
-          run_file_as_command(selection.path)
-        end
-      end)
+        end)
+      end, 10) -- Delay to debounce
 
       return true
     end
   })
 end
+-- -- Main function to be triggered by the key mapping
+-- function M.run()
+--   local project_root = find_project_root()
+--   if not project_root then
+--     print("Project root not found!")
+--     return
+--   end
+
+--   local rcfgs_dir = project_root .. "/.rcfgs"
+--   if vim.fn.isdirectory(rcfgs_dir) == 0 then
+--     vim.fn.mkdir(rcfgs_dir, "p")
+--     print("Created directory: " .. rcfgs_dir)
+--   else
+--     print(".rcfgs directory already exists at " .. rcfgs_dir)
+--   end
+
+--   require('telescope.builtin').find_files({
+--     prompt_title = "Find files in .rcfgs",
+--     cwd = rcfgs_dir,
+--     layout_config = { preview_width = 0.6 },
+--     previewer = true,
+--     attach_mappings = function(prompt_bufnr, map)
+--       local action_state = require('telescope.actions.state')
+--       local actions = require('telescope.actions')
+
+--       map('i', '<CR>', function()
+--         local current_picker = action_state.get_current_picker(prompt_bufnr)
+--         local selection = action_state.get_selected_entry()
+
+--         if selection == nil then
+--           local new_file_name = action_state.get_current_line()
+
+--           if new_file_name ~= "" then
+--             actions.close(prompt_bufnr)
+--             create_and_edit_file(rcfgs_dir, new_file_name)
+--           else
+--             print("No file name provided!")
+--           end
+--         else
+--           actions.close(prompt_bufnr)
+--           run_file_as_command(selection.path)
+--         end
+--       end)
+
+--       return true
+--     end
+--   })
+-- end
 
 function M.setup(opts)
   M.options = vim.tbl_extend('force', M.options, opts or {})
