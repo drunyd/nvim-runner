@@ -6,20 +6,6 @@ M.options = {
   output_window = 'vertical', -- Default output window type
 }
 
--- Function to find the root directory of the Git project
--- local function find_project_root()
---   -- Search for the .git directory from the current file's path upwards
---   local git_root = vim.fn.finddir(".git", ".;")
-  
---   if git_root == "" then
---     -- If .git is not found, print a message and return nil
---     print("Project root not found! Not a Git repository.")
---     return nil
---   else
---     -- Return the root directory (strip the .git from the path)
---     return vim.fn.fnamemodify(git_root, ":h")
---   end
--- end
 -- Function to create a new file in the .rcfgs directory
 local function create_and_edit_file(rcfgs_dir, file_name)
   local file_path = rcfgs_dir .. '/' .. file_name
@@ -94,23 +80,10 @@ local function run_file_as_command(file_path)
 end
 
 function M.run()
-  -- Finding project root and handling when it's not found
-  -- local project_root = find_project_root()
-  -- if not project_root then
-  --   print("Project root not found!")
-  --   return
-  -- end
 
   -- local rcfgs_dir = project_root .. "/.rcfgs"
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
-
-  -- Check if the directory exists, create if necessary
-  -- if vim.fn.isdirectory(rcfgs_dir) == 0 then
     vim.fn.mkdir(rcfgs_dir, "p")
-  --   print("Created directory: " .. rcfgs_dir)
-  -- else
-  --   print(".rcfgs directory already exists at " .. rcfgs_dir)
-  -- end
 
   -- Now launch Telescope find_files, optimized to reduce delay
   require('telescope.builtin').find_files({
