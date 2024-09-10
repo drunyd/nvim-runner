@@ -7,27 +7,41 @@ M.options = {
   output_window = 'vertical', -- Default output window type
 }
 
--- Function to find the root directory of the project
+-- Function to find the root directory of the Git project
 local function find_project_root()
-  local candidates = { '.git', 'project.toml', 'bruno.json', 'package.json' }
-  local current_dir = vim.fn.expand('%:p:h')
-
-  while current_dir ~= "/" and current_dir ~= "" do  -- Add check for root and empty string
-    for _, candidate in ipairs(candidates) do
-      if vim.fn.globpath(current_dir, candidate) ~= "" then
-        return current_dir
-      end
-    end
-    local parent_dir = vim.fn.fnamemodify(current_dir, ':h')
-    if parent_dir == current_dir then  -- If it can't go up anymore, exit the loop
-      break
-    end
-    current_dir = parent_dir
+  -- Search for the .git directory from the current file's path upwards
+  local git_root = vim.fn.finddir(".git", ".;")
+  
+  if git_root == "" then
+    -- If .git is not found, print a message and return nil
+    print("Project root not found! Not a Git repository.")
+    return nil
+  else
+    -- Return the root directory (strip the .git from the path)
+    return vim.fn.fnamemodify(git_root, ":h")
   end
+end
+-- -- Function to find the root directory of the project
+-- local function find_project_root()
+--   local candidates = { '.git', 'project.toml', 'bruno.json', 'package.json' }
+--   local current_dir = vim.fn.expand('%:p:h')
+
+--   while current_dir ~= "/" and current_dir ~= "" do  -- Add check for root and empty string
+--     for _, candidate in ipairs(candidates) do
+--       if vim.fn.globpath(current_dir, candidate) ~= "" then
+--         return current_dir
+--       end
+--     end
+--     local parent_dir = vim.fn.fnamemodify(current_dir, ':h')
+--     if parent_dir == current_dir then  -- If it can't go up anymore, exit the loop
+--       break
+--     end
+--     current_dir = parent_dir
+--   end
 
   -- If no root directory is found, return nil
-  return nil
-end
+  -- return nil
+-- end
 
 -- Function to create a new file in the .rcfgs directory
 local function create_and_edit_file(rcfgs_dir, file_name)
