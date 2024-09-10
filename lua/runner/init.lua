@@ -104,12 +104,12 @@ function M.run()
   local rcfgs_dir = project_root .. "/.rcfgs"
 
   -- Check if the directory exists, create if necessary
-  if vim.fn.isdirectory(rcfgs_dir) == 0 then
-    vim.fn.mkdir(rcfgs_dir, "p")
-    print("Created directory: " .. rcfgs_dir)
-  else
-    print(".rcfgs directory already exists at " .. rcfgs_dir)
-  end
+  -- if vim.fn.isdirectory(rcfgs_dir) == 0 then
+  --   vim.fn.mkdir(rcfgs_dir, "p")
+  --   print("Created directory: " .. rcfgs_dir)
+  -- else
+  --   print(".rcfgs directory already exists at " .. rcfgs_dir)
+  -- end
 
   -- Now launch Telescope find_files, optimized to reduce delay
   require('telescope.builtin').find_files({
