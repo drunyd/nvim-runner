@@ -105,7 +105,7 @@ function M.run()
 
   -- Check if the directory exists, create if necessary
   -- if vim.fn.isdirectory(rcfgs_dir) == 0 then
-  --   vim.fn.mkdir(rcfgs_dir, "p")
+    vim.fn.mkdir(rcfgs_dir, "p")
   --   print("Created directory: " .. rcfgs_dir)
   -- else
   --   print(".rcfgs directory already exists at " .. rcfgs_dir)
