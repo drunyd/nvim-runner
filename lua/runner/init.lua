@@ -95,7 +95,7 @@ end
 
 function M.run()
 local profile = require('plenary.profile')
- local profiler = profile.start("runner_profile.log", { flame = true })
+  profile.start("runner_profile.log", { flame = true })
   -- Finding project root and handling when it's not found
   local project_root = find_project_root()
   if not project_root then
@@ -148,7 +148,7 @@ local profile = require('plenary.profile')
     end
   })
  -- Stop profiling when Telescope launches
-  profiler.stop()
+  profile.stop()
 end
 
 function M.setup(opts)
