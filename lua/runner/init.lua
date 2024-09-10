@@ -21,28 +21,6 @@ local function find_project_root()
     return vim.fn.fnamemodify(git_root, ":h")
   end
 end
--- -- Function to find the root directory of the project
--- local function find_project_root()
---   local candidates = { '.git', 'project.toml', 'bruno.json', 'package.json' }
---   local current_dir = vim.fn.expand('%:p:h')
-
---   while current_dir ~= "/" and current_dir ~= "" do  -- Add check for root and empty string
---     for _, candidate in ipairs(candidates) do
---       if vim.fn.globpath(current_dir, candidate) ~= "" then
---         return current_dir
---       end
---     end
---     local parent_dir = vim.fn.fnamemodify(current_dir, ':h')
---     if parent_dir == current_dir then  -- If it can't go up anymore, exit the loop
---       break
---     end
---     current_dir = parent_dir
---   end
-
-  -- If no root directory is found, return nil
-  -- return nil
--- end
-
 -- Function to create a new file in the .rcfgs directory
 local function create_and_edit_file(rcfgs_dir, file_name)
   local file_path = rcfgs_dir .. '/' .. file_name
@@ -169,54 +147,6 @@ function M.run()
     end
   })
 end
--- -- Main function to be triggered by the key mapping
--- function M.run()
---   local project_root = find_project_root()
---   if not project_root then
---     print("Project root not found!")
---     return
---   end
-
---   local rcfgs_dir = project_root .. "/.rcfgs"
---   if vim.fn.isdirectory(rcfgs_dir) == 0 then
---     vim.fn.mkdir(rcfgs_dir, "p")
---     print("Created directory: " .. rcfgs_dir)
---   else
---     print(".rcfgs directory already exists at " .. rcfgs_dir)
---   end
-
---   require('telescope.builtin').find_files({
---     prompt_title = "Find files in .rcfgs",
---     cwd = rcfgs_dir,
---     layout_config = { preview_width = 0.6 },
---     previewer = true,
---     attach_mappings = function(prompt_bufnr, map)
---       local action_state = require('telescope.actions.state')
---       local actions = require('telescope.actions')
-
---       map('i', '<CR>', function()
---         local current_picker = action_state.get_current_picker(prompt_bufnr)
---         local selection = action_state.get_selected_entry()
-
---         if selection == nil then
---           local new_file_name = action_state.get_current_line()
-
---           if new_file_name ~= "" then
---             actions.close(prompt_bufnr)
---             create_and_edit_file(rcfgs_dir, new_file_name)
---           else
---             print("No file name provided!")
---           end
---         else
---           actions.close(prompt_bufnr)
---           run_file_as_command(selection.path)
---         end
---       end)
-
---       return true
---     end
---   })
--- end
 
 function M.setup(opts)
   M.options = vim.tbl_extend('force', M.options, opts or {})
