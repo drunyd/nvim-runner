@@ -2,7 +2,7 @@
 local M = {}
 
 M.options = {
-  hotkey = '<leader>r', -- Default hotkey
+  hotkey = '<leader>r',       -- Default hotkey
   output_window = 'vertical', -- Default output window type
 }
 
@@ -16,11 +16,8 @@ local function create_and_edit_file(rcfgs_dir, file_name)
   print("Created and opened new file: " .. file_path)
 end
 
--- Function to run the content of a selected file as a command
-local function run_file_as_command(file_path)
-  local lines = vim.fn.readfile(file_path)
-  local command = table.concat(lines, "\n")
-
+-- Function to set up the output window for running commands
+local function setup_output_window()
   local bufnr
 
   -- Create different types of windows based on the output_window option
@@ -50,6 +47,7 @@ local function run_file_as_command(file_path)
     bufnr = vim.fn.bufnr() -- Get the current buffer number if not float
   end
 
+  -- Apply window settings
   vim.cmd('setlocal buftype=nofile')
   vim.cmd('setlocal bufhidden=wipe')
   vim.cmd('setlocal nobuflisted')
@@ -57,6 +55,13 @@ local function run_file_as_command(file_path)
   vim.cmd('setlocal norelativenumber')
   vim.cmd('setlocal nowrap')
   vim.cmd('setlocal signcolumn=no')
+
+  return bufnr
+end
+
+-- Function to run a given command and show its output in the configured window
+local function run_command_in_window(command)
+  local bufnr = setup_output_window()
 
   -- Start a terminal in the new buffer
   vim.fn.termopen(command, {
@@ -79,18 +84,24 @@ local function run_file_as_command(file_path)
   vim.cmd('startinsert') -- Start in insert mode in terminal
 end
 
-function M.run()
+-- Function to run the content of a selected file as a command
+local function run_file_as_command(file_path)
+  local lines = vim.fn.readfile(file_path)
+  local command = table.concat(lines, "\n")
+  run_command_in_window(command)
+end
 
+function M.run()
   -- local rcfgs_dir = project_root .. "/.rcfgs"
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
-    vim.fn.mkdir(rcfgs_dir, "p")
+  vim.fn.mkdir(rcfgs_dir, "p")
 
   -- Now launch Telescope find_files, optimized to reduce delay
   require('telescope.builtin').find_files({
     prompt_title = "Find files in .rcfgs",
     cwd = rcfgs_dir,
     layout_config = { preview_width = 0.6 },
-    previewer = true,  -- Disable the previewer for faster loading (or set to true if necessary)
+    previewer = true, -- Disable the previewer for faster loading (or set to true if necessary)
     attach_mappings = function(prompt_bufnr, map)
       local action_state = require('telescope.actions.state')
       local actions = require('telescope.actions')
@@ -121,6 +132,16 @@ function M.run()
   })
 end
 
+-- New function to run an exact command directly
+function M.run_command(cmd)
+  if not cmd or cmd == "" then
+    print("No command provided!")
+    return
+  end
+
+  run_command_in_window(cmd)
+end
+
 function M.setup(opts)
   M.options = vim.tbl_extend('force', M.options, opts or {})
 
@@ -130,6 +151,14 @@ function M.setup(opts)
   vim.api.nvim_create_user_command('RunnerRun', function()
     require('runner').run()
   end, { desc = 'Run the Runner plugin function' })
+
+  -- New user command to run an exact command
+  vim.api.nvim_create_user_command('RunnerRunCmd', function(args)
+    require('runner').run_command(table.concat(args.fargs, " "))
+  end, {
+    nargs = '+',
+    desc = 'Run a specific command directly',
+  })
 end
 
 return M
