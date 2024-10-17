@@ -145,16 +145,16 @@ end
 function M.setup(opts)
   M.options = vim.tbl_extend('force', M.options, opts or {})
 
-  vim.api.nvim_set_keymap('n', M.options.hotkey, '<cmd>lua require("runner").run()<CR>',
+  vim.api.nvim_set_keymap('n', M.options.hotkey, '<cmd>lua require("nvim-runner").run()<CR>',
     { noremap = true, silent = true })
 
   vim.api.nvim_create_user_command('RunnerRun', function()
-    require('runner').run()
+    require('nvim-runner').run()
   end, { desc = 'Run the Runner plugin function' })
 
   -- New user command to run an exact command
   vim.api.nvim_create_user_command('RunnerRunCmd', function(args)
-    require('runner').run_command(table.concat(args.fargs, " "))
+    require('nvim-runner').run_command(table.concat(args.fargs, " "))
   end, {
     nargs = '+',
     desc = 'Run a specific command directly',
