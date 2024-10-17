@@ -161,4 +161,71 @@ function M.setup(opts)
   })
 end
 
+function get_robot_test_case_name()
+  local bufnr = vim.api.nvim_get_current_buf()      -- Get the current buffer
+  local cursor_pos = vim.api.nvim_win_get_cursor(0) -- Get the current cursor position
+  local line_num = cursor_pos[1]                    -- Line number (1-based index)
+
+  -- Iterate from the current line upwards to find the test case name
+  for i = line_num, 1, -1 do
+    local line = vim.api.nvim_buf_get_lines(bufnr, i - 1, i, false)[1]
+
+    -- Check if the line starts with non-whitespace characters (which is usually a test case header in Robot Framework)
+    if line:match("^%S") then
+      -- Return the found test case name
+      return line
+    end
+  end
+
+  return nil -- If no test case name is found, return nil
+end
+
+-- Function to get the current file path relative to the project root
+function get_relative_file_path()
+  -- Get the absolute path of the current file
+  local filepath = vim.api.nvim_buf_get_name(0)
+
+  -- Use Neovim's built-in functionality to get the project root directory
+  local root_dir = vim.fn.finddir(".git", ".;") -- Assuming .git is the project root marker
+
+  if root_dir == "" then
+    root_dir = vim.fn.getcwd() -- If .git is not found, use the current working directory
+  end
+
+  -- Get the relative file path from the project root
+  local relative_path = vim.fn.fnamemodify(filepath, ":." .. root_dir)
+
+  return relative_path
+end
+
+-- Function to build the full command
+function M.build_robot_command()
+  local test_case_name = get_robot_test_case_name()
+  if not test_case_name then
+    print("No test case found")
+    return
+  end
+
+  local relative_file_path = get_relative_file_path()
+
+  -- Define the path to the .rcfgs/tc file
+  local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
+  local tc_file_path = rcfgs_dir .. "/tc"
+  local tc_content = ""
+
+  -- Check if the .rcfgs/tc file exists
+  if vim.fn.filereadable(tc_file_path) == 1 then
+    -- Read the content of the tc file
+    local lines = vim.fn.readfile(tc_file_path)
+    tc_content = table.concat(lines, " ") -- Join lines with spaces to form a single string
+  end
+
+  -- Build the final command, including the content of the tc file if it exists
+  local command = "robot -t \"" .. test_case_name .. "\" " .. tc_content .. " " .. relative_file_path
+
+  -- Return or print the command for debugging
+  print("Command: " .. command)
+  return command
+end
+
 return M
