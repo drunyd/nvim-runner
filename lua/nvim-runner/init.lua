@@ -198,7 +198,17 @@ function get_relative_file_path()
   return relative_path
 end
 
--- Function to build the full command
+-- Helper function to get the content of the "prefix" file if it exists
+local function get_prefix_content(rcfgs_dir)
+  local prefix_file_path = rcfgs_dir .. "/prefix"
+  if vim.fn.filereadable(prefix_file_path) == 1 then
+    local lines = vim.fn.readfile(prefix_file_path)
+    return table.concat(lines, " ") .. " " -- Join lines with spaces and add a trailing space
+  end
+  return ""
+end
+
+-- Function to build the full command for a specific test case
 function M.build_robot_command_test_case()
   local test_case_name = get_robot_test_case_name()
   if not test_case_name then
@@ -207,11 +217,9 @@ function M.build_robot_command_test_case()
   end
 
   local relative_file_path = get_relative_file_path()
-
-  -- Define the path to the .rcfgs directory
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
+  local prefix_content = get_prefix_content(rcfgs_dir)
 
-  -- Launch Telescope to find files in the .rcfgs directory
   require('telescope.builtin').find_files({
     prompt_title = "Select configuration file",
     cwd = rcfgs_dir,
@@ -228,16 +236,13 @@ function M.build_robot_command_test_case()
           local tc_file_path = selection.path
           local tc_content = ""
 
-          -- Read the content of the selected file
           if vim.fn.filereadable(tc_file_path) == 1 then
             local lines = vim.fn.readfile(tc_file_path)
-            tc_content = table.concat(lines, " ") -- Join lines with spaces to form a single string
+            tc_content = table.concat(lines, " ")
           end
 
-          -- Build the final command, including the content of the selected file and the test case name
-          local command = "robot -t \"" .. test_case_name .. "\" " .. tc_content .. " " .. relative_file_path
-
-          -- Return or print the command for debugging
+          local command = prefix_content ..
+          "robot -t \"" .. test_case_name .. "\" " .. tc_content .. " " .. relative_file_path
           print("Command: " .. command)
           M.run_command(command)
         else
@@ -253,11 +258,9 @@ end
 -- Function to build the full command for the current file
 function M.build_robot_command_ts()
   local relative_file_path = get_relative_file_path()
-
-  -- Define the path to the .rcfgs directory
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
+  local prefix_content = get_prefix_content(rcfgs_dir)
 
-  -- Launch Telescope to find files in the .rcfgs directory
   require('telescope.builtin').find_files({
     prompt_title = "Select configuration file",
     cwd = rcfgs_dir,
@@ -274,16 +277,12 @@ function M.build_robot_command_ts()
           local tc_file_path = selection.path
           local tc_content = ""
 
-          -- Read the content of the selected file
           if vim.fn.filereadable(tc_file_path) == 1 then
             local lines = vim.fn.readfile(tc_file_path)
-            tc_content = table.concat(lines, " ") -- Join lines with spaces to form a single string
+            tc_content = table.concat(lines, " ")
           end
 
-          -- Build the final command, including the content of the selected file
-          local command = "robot " .. tc_content .. " " .. relative_file_path
-
-          -- Return or print the command for debugging
+          local command = prefix_content .. "robot " .. tc_content .. " " .. relative_file_path
           print("Command: " .. command)
           M.run_command(command)
         else
