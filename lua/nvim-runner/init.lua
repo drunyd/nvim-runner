@@ -206,6 +206,7 @@ function M.build_robot_command_test_case()
     return
   end
 
+  local final_command = ""
   local relative_file_path = get_relative_file_path()
 
   -- Define the path to the .rcfgs directory
@@ -239,13 +240,13 @@ function M.build_robot_command_test_case()
 
           -- Return or print the command for debugging
           print("Command: " .. command)
-          return command
+          final_command = command
         else
           print("No file selected!")
         end
       end)
 
-      return true
+      return final_command
     end
   })
 end
@@ -256,6 +257,7 @@ function M.build_robot_command_ts()
 
   -- Define the path to the .rcfgs directory
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
+  local final_command = ""
 
   -- Launch Telescope to find files in the .rcfgs directory
   require('telescope.builtin').find_files({
@@ -285,13 +287,13 @@ function M.build_robot_command_ts()
 
           -- Return or print the command for debugging
           print("Command: " .. command)
-          return command
+          final_command = command
         else
           print("No file selected!")
         end
       end)
 
-      return true
+      return final_command
     end
   })
 end
