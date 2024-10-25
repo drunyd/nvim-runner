@@ -199,7 +199,7 @@ function get_relative_file_path()
 end
 
 -- Function to build the full command
-function M.build_robot_command()
+function M.build_robot_command_test_case()
   local test_case_name = get_robot_test_case_name()
   if not test_case_name then
     print("No test case found")
@@ -208,24 +208,92 @@ function M.build_robot_command()
 
   local relative_file_path = get_relative_file_path()
 
-  -- Define the path to the .rcfgs/tc file
+  -- Define the path to the .rcfgs directory
   local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
-  local tc_file_path = rcfgs_dir .. "/tc"
-  local tc_content = ""
 
-  -- Check if the .rcfgs/tc file exists
-  if vim.fn.filereadable(tc_file_path) == 1 then
-    -- Read the content of the tc file
-    local lines = vim.fn.readfile(tc_file_path)
-    tc_content = table.concat(lines, " ") -- Join lines with spaces to form a single string
-  end
+  -- Launch Telescope to find files in the .rcfgs directory
+  require('telescope.builtin').find_files({
+    prompt_title = "Select configuration file",
+    cwd = rcfgs_dir,
+    layout_config = { preview_width = 0.6 },
+    previewer = true,
+    attach_mappings = function(prompt_bufnr, map)
+      local action_state = require('telescope.actions.state')
+      local actions = require('telescope.actions')
 
-  -- Build the final command, including the content of the tc file if it exists
-  local command = "robot -t \"" .. test_case_name .. "\" " .. tc_content .. " " .. relative_file_path
+      map('i', '<CR>', function()
+        local selection = action_state.get_selected_entry()
+        if selection then
+          actions.close(prompt_bufnr)
+          local tc_file_path = selection.path
+          local tc_content = ""
 
-  -- Return or print the command for debugging
-  print("Command: " .. command)
-  return command
+          -- Read the content of the selected file
+          if vim.fn.filereadable(tc_file_path) == 1 then
+            local lines = vim.fn.readfile(tc_file_path)
+            tc_content = table.concat(lines, " ") -- Join lines with spaces to form a single string
+          end
+
+          -- Build the final command, including the content of the selected file and the test case name
+          local command = "robot -t \"" .. test_case_name .. "\" " .. tc_content .. " " .. relative_file_path
+
+          -- Return or print the command for debugging
+          print("Command: " .. command)
+          return command
+        else
+          print("No file selected!")
+        end
+      end)
+
+      return true
+    end
+  })
+end
+
+-- Function to build the full command for the current file
+function M.build_robot_command_ts()
+  local relative_file_path = get_relative_file_path()
+
+  -- Define the path to the .rcfgs directory
+  local rcfgs_dir = vim.fn.getcwd() .. "/.rcfgs"
+
+  -- Launch Telescope to find files in the .rcfgs directory
+  require('telescope.builtin').find_files({
+    prompt_title = "Select configuration file",
+    cwd = rcfgs_dir,
+    layout_config = { preview_width = 0.6 },
+    previewer = true,
+    attach_mappings = function(prompt_bufnr, map)
+      local action_state = require('telescope.actions.state')
+      local actions = require('telescope.actions')
+
+      map('i', '<CR>', function()
+        local selection = action_state.get_selected_entry()
+        if selection then
+          actions.close(prompt_bufnr)
+          local tc_file_path = selection.path
+          local tc_content = ""
+
+          -- Read the content of the selected file
+          if vim.fn.filereadable(tc_file_path) == 1 then
+            local lines = vim.fn.readfile(tc_file_path)
+            tc_content = table.concat(lines, " ") -- Join lines with spaces to form a single string
+          end
+
+          -- Build the final command, including the content of the selected file
+          local command = "robot " .. tc_content .. " " .. relative_file_path
+
+          -- Return or print the command for debugging
+          print("Command: " .. command)
+          return command
+        else
+          print("No file selected!")
+        end
+      end)
+
+      return true
+    end
+  })
 end
 
 return M
